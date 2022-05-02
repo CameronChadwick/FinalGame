@@ -79,7 +79,6 @@ class Layout():
         self.tile_list = []
 
     def create(self, level):
-        self.tile_list = []
         level_num = self.layout[level - 1]
         for i, row in enumerate(level_num):
             for j, col in enumerate(row):
@@ -93,6 +92,20 @@ class Layout():
                     tile = (self.dirt, image_rect)
                     self.tile_list.append(tile)
 
+                if col == "2":
+                    image_rect = self.grass.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.grass, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "W":
+                    image_rect = self.invwall.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.invwall, image_rect)
+                    self.tile_list.append(tile)
+
     def update(self, display):
         for tile in self.tile_list:
             display.blit(tile[0], tile[1])
@@ -101,10 +114,17 @@ class Layout():
         return self.tile_list
 
     def images(self):
+        inviswall = SpriteSheet("Assets/invisible wall colors.png")
         sheet1 = SpriteSheet("Assets/OpenGunnerForestTiles.png")
 
         dirt = sheet1.image_at((77, 255, 50, 50))
         self.dirt = pygame.transform.scale(dirt, (TILE_SIZE, TILE_SIZE))
+
+        grass = sheet1.image_at((77, 201, 50, 50))
+        self.grass = pygame.transform.scale(grass, (TILE_SIZE, TILE_SIZE))
+
+        invwall = inviswall.image_at((0, 0, 50, 50))
+        self.invwall = pygame.transform.scale(invwall, (TILE_SIZE, TILE_SIZE))
 
 
 class Player(pygame.sprite.Sprite):
@@ -124,7 +144,29 @@ class Player(pygame.sprite.Sprite):
         self.current_frame = 0
         self.right = True
         self.left = False
+        self.jumping = False
+        self.falling = False
+        self.velo_y = 0
+        self.camera_shift = 0
+        self.jumpspeed = 0
         self.dx = 0
+
+    def camera(self):
+        left_edge = DISPLAY_WIDTH // 4
+        right_edge = DISPLAY_WIDTH - left_edge
+        if self.rect.left <= left_edge and self.left:
+            self.camera_shift = 4
+            self.rect.left = left_edge
+            self.dx = 0
+        elif self.rect.right >= right_edge and self.right:
+            self.camera_shift = -4
+            self.rect.right = right_edge
+            self.dx = 0
+        else:
+            self.camera_shift = 0
+
+        for tile in self.tile_set:
+            tile[1].x += self.camera_shift
 
     def movement(self):
         self.dx = 0
@@ -135,7 +177,7 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_d]:
             self.left = False
             self.right = True
-            # self.camera()
+            self.camera()
             self.dx = 4
             now = pygame.time.get_ticks()
             if now - self.last >= self.image_delay:
@@ -146,7 +188,7 @@ class Player(pygame.sprite.Sprite):
         elif keys[pygame.K_a]:
             self.left = True
             self.right = False
-            # self.camera()
+            self.camera()
             self.dx = -4
             now = pygame.time.get_ticks()
             if now - self.last >= self.image_delay:
@@ -161,6 +203,55 @@ class Player(pygame.sprite.Sprite):
                 self.image = self.stand_r
             elif self.left:
                 self.image = self.stand_l
+
+        if self.jumping or self.falling:
+            if self.right:
+                self.image = self.jump_r
+            elif self.left:
+                self.image = self.jump_l
+            else:
+                if self.right:
+                    self.image = self.stand_r
+                elif self.left:
+                    self.image = self.stand_l
+
+        # jumping
+        if keys[pygame.K_SPACE] and not self.falling:
+            self.jumping = True
+            self.jumpspeed -= 3
+            dy += self.jumpspeed
+
+        if not keys[pygame.K_SPACE]:
+            self.falling = True
+
+        if self.jumpspeed < -11:
+            self.jumping = False
+            self.falling = True
+            dy += self.jumpspeed
+
+        # gravity
+        self.jumpspeed += 1
+        if self.jumpspeed > 10:
+            self.jumpspeed = 10
+        dy = self.jumpspeed
+
+        # collision
+        for tile in self.tile_set:
+            if tile[1].colliderect(self.rect.x + self.dx, self.rect.y,
+                               self.rect.width, self.rect.height):
+                self.dx = 0
+                self.camera_shift = 0
+                if self.right:
+                    self.rect.x -= 1
+                elif self.left:
+                    self.rect.x += 1
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy,
+                                   self.rect.width, self.rect.height):
+                if dy < 0:
+                    dy = tile[1].bottom - self.rect.top
+                elif dy > 0:
+                    dy = tile[1].top - self.rect.bottom
+                    self.falling = False
 
         # update position
         self.rect.x += self.dx

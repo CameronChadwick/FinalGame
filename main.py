@@ -13,7 +13,7 @@ layout_list = game_layout.get_layout()
 player_group = pygame.sprite.Group()
 
 
-player = sprites.Player(225, 525, 25, layout_list)
+player = sprites.Player(225, 500, 25, layout_list)
 player_group.add(player)
 
 
@@ -26,7 +26,7 @@ def reset_level(new_level):
     game_layout.create(new_level)
     layout_list = game_layout.get_layout()
     player_group = pygame.sprite.Group()
-    player = sprites.Player(225, 525, 25, layout_list)
+    player = sprites.Player(225, 500, 25, layout_list)
     player_group.add(player)
 
     return layout_list
