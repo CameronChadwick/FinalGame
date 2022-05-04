@@ -4,7 +4,6 @@ from settings import *
 
 # base elements
 pygame.init()
-screen = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT))
 pygame.display.set_caption("Game")
 
 game_layout = sprites.Layout(LAYOUT)
@@ -21,11 +20,11 @@ def reset_level(new_level):
     global player, player_group, game_layout, layout_list
     # empty groups
     player_group.empty()
+    game_layout.doors.empty()
 
     # create level
     game_layout.create(new_level)
     layout_list = game_layout.get_layout()
-    player_group = pygame.sprite.Group()
     player = sprites.Player(225, 500, 25, layout_list)
     player_group.add(player)
 
@@ -55,10 +54,24 @@ def game_play():
             if event.type == pygame.QUIT:
                 running = False
 
+        door_collide = pygame.sprite.groupcollide(player_group, game_layout.doors, False, False)
+
+        if door_collide:
+            print("hey there")
+            level += 1
+
+            if level <= max_level:
+
+                layout_lis = reset_level(level)
+
+            else:
+                running = False
+
         screen.fill(DARK_BLUE)
 
         player_group.update(screen)
         game_layout.update(screen)
+        game_layout.doors.update(screen)
 
         pygame.display.flip()
 

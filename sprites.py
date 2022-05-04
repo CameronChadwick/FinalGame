@@ -77,6 +77,7 @@ class Layout():
 
         self.layout = layout
         self.tile_list = []
+        self.doors = pygame.sprite.GroupSingle()
 
     def create(self, level):
         level_num = self.layout[level - 1]
@@ -106,6 +107,10 @@ class Layout():
                     tile = (self.invwall, image_rect)
                     self.tile_list.append(tile)
 
+                if col == "D":
+                    door = Door(x_val, y_val)
+                    self.doors.add(door)
+
     def update(self, display):
         for tile in self.tile_list:
             display.blit(tile[0], tile[1])
@@ -125,6 +130,24 @@ class Layout():
 
         invwall = inviswall.image_at((0, 0, 50, 50))
         self.invwall = pygame.transform.scale(invwall, (TILE_SIZE, TILE_SIZE))
+
+
+class Door(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+
+        door_sheet = SpriteSheet("Assets/OpenGunnerStarterTiles.png")
+        door = door_sheet.image_at((448, 581, 50, 54))
+        self.door = pygame.transform.scale(door, (TILE_SIZE * 2, TILE_SIZE * 2))
+
+        self.image = self.door
+        self.rect = self.image.get_rect()
+
+        self.rect.x = x
+        self.rect.y = y
+
+    def update(self, display):
+        display.blit(self.image, self.rect)
 
 
 class Player(pygame.sprite.Sprite):
