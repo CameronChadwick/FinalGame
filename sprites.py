@@ -77,9 +77,9 @@ class Layout():
 
         self.layout = layout
         self.tile_list = []
-        self.doors = pygame.sprite.GroupSingle()
 
     def create(self, level):
+        self.tile_list = []
         level_num = self.layout[level - 1]
         for i, row in enumerate(level_num):
             for j, col in enumerate(row):
@@ -108,8 +108,11 @@ class Layout():
                     self.tile_list.append(tile)
 
                 if col == "D":
-                    door = Door(x_val, y_val)
-                    self.doors.add(door)
+                    image_rect = self.door.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.door, image_rect, 1)
+                    self.tile_list.append(tile)
 
     def update(self, display):
         for tile in self.tile_list:
@@ -120,6 +123,7 @@ class Layout():
 
     def images(self):
         inviswall = SpriteSheet("Assets/invisible wall colors.png")
+        base_sheet = SpriteSheet("Assets/OpenGunnerStarterTiles.png")
         sheet1 = SpriteSheet("Assets/OpenGunnerForestTiles.png")
 
         dirt = sheet1.image_at((77, 255, 50, 50))
@@ -131,37 +135,20 @@ class Layout():
         invwall = inviswall.image_at((0, 0, 50, 50))
         self.invwall = pygame.transform.scale(invwall, (TILE_SIZE, TILE_SIZE))
 
-
-class Door(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-
-        door_sheet = SpriteSheet("Assets/OpenGunnerStarterTiles.png")
-        door = door_sheet.image_at((448, 581, 50, 54))
+        door = base_sheet.image_at((448, 581, 50, 54))
         self.door = pygame.transform.scale(door, (TILE_SIZE * 2, TILE_SIZE * 2))
-
-        self.image = self.door
-        self.rect = self.image.get_rect()
-
-        self.rect.x = x
-        self.rect.y = y
-
-    def update(self, display):
-        display.blit(self.image, self.rect)
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, tile_size, tile_set):
         pygame.sprite.Sprite.__init__(self)
-        self.images()
-
-        self.image = self.stand_r
-        self.rect = self.image.get_rect()
-
-        self.rect.x = x
-        self.rect.y = y
         self.tile_size = tile_size
         self.tile_set = tile_set
+        self.images()
+        self.image = self.stand_r
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
         self.last = pygame.time.get_ticks()
         self.image_delay = 100
         self.current_frame = 0
@@ -261,7 +248,7 @@ class Player(pygame.sprite.Sprite):
         # collision
         for tile in self.tile_set:
             if tile[1].colliderect(self.rect.x + self.dx, self.rect.y,
-                               self.rect.width, self.rect.height):
+                                   self.rect.width, self.rect.height):
                 self.dx = 0
                 self.camera_shift = 0
                 if self.right:

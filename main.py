@@ -20,11 +20,11 @@ def reset_level(new_level):
     global player, player_group, game_layout, layout_list
     # empty groups
     player_group.empty()
-    game_layout.doors.empty()
 
     # create level
     game_layout.create(new_level)
     layout_list = game_layout.get_layout()
+    player_group = pygame.sprite.Group()
     player = sprites.Player(225, 500, 25, layout_list)
     player_group.add(player)
 
@@ -50,28 +50,26 @@ def game_play():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
-
             if event.type == pygame.QUIT:
                 running = False
 
-        door_collide = pygame.sprite.groupcollide(player_group, game_layout.doors, False, False)
+            # door collision
+        for tile in layout_lis:
+            if tile[1].colliderect(player.rect.x + 3, player.rect.y,
+                                   player.rect.width, player.rect.height) and len(tile) == 3:
+                level += 1
 
-        if door_collide:
-            print("hey there")
-            level += 1
+                if level <= max_level:
 
-            if level <= max_level:
+                    layout_lis = reset_level(level)
 
-                layout_lis = reset_level(level)
-
-            else:
-                running = False
+                else:
+                    running = False
 
         screen.fill(DARK_BLUE)
 
         player_group.update(screen)
         game_layout.update(screen)
-        game_layout.doors.update(screen)
 
         pygame.display.flip()
 
