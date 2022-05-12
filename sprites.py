@@ -276,7 +276,6 @@ class Player(pygame.sprite.Sprite):
         tile_sheet = SpriteSheet("Assets/OpenGunnerHeroVer2.png")
 
         self.stand_r = tile_sheet.image_at((24, 143, 50, 50), -1)
-
         self.stand_l = tile_sheet.image_at((24, 200, 50, 50), -1)
 
         self.jump_r = tile_sheet.image_at((126, 143, 50, 50), -1)
