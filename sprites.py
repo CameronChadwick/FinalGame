@@ -77,6 +77,8 @@ class Layout():
 
         self.layout = layout
         self.tile_list = []
+        self.enemies = pygame.sprite.Group()
+        self.bullet_group = pygame.sprite.Group()
 
     def create(self, level):
         self.tile_list = []
@@ -94,10 +96,38 @@ class Layout():
                     self.tile_list.append(tile)
 
                 if col == "2":
-                    image_rect = self.grass.get_rect()
+                    image_rect = self.grass_top.get_rect()
                     image_rect.x = x_val
                     image_rect.y = y_val
-                    tile = (self.grass, image_rect)
+                    tile = (self.grass_top, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "3":
+                    image_rect = self.grass_l_c.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.grass_l_c, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "4":
+                    image_rect = self.grass_r_c.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.grass_r_c, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "L":
+                    image_rect = self.grass_l.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.grass_l, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "R":
+                    image_rect = self.grass_r.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.grass_r, image_rect)
                     self.tile_list.append(tile)
 
                 if col == "W":
@@ -114,9 +144,15 @@ class Layout():
                     tile = (self.door, image_rect, 1)
                     self.tile_list.append(tile)
 
+                if col == "E":
+                    self.enemy = Enemy(x_val, y_val)
+                    self.enemies.add(self.enemy)
+
     def update(self, display):
         for tile in self.tile_list:
             display.blit(tile[0], tile[1])
+        for enemy in self.enemies:
+            enemy.update(display)
 
     def get_layout(self):
         return self.tile_list
@@ -129,21 +165,177 @@ class Layout():
         dirt = sheet1.image_at((77, 255, 50, 50))
         self.dirt = pygame.transform.scale(dirt, (TILE_SIZE, TILE_SIZE))
 
-        grass = sheet1.image_at((77, 201, 50, 50))
-        self.grass = pygame.transform.scale(grass, (TILE_SIZE, TILE_SIZE))
+        grass_top = sheet1.image_at((77, 201, 50, 50))
+        self.grass_top = pygame.transform.scale(grass_top, (TILE_SIZE, TILE_SIZE))
+
+        grass_l = sheet1.image_at((23, 255, 50, 50))
+        self.grass_l = pygame.transform.scale(grass_l, (TILE_SIZE, TILE_SIZE))
+
+        grass_r = sheet1.image_at((131, 255, 50, 50))
+        self.grass_r = pygame.transform.scale(grass_r, (TILE_SIZE, TILE_SIZE))
+
+        grass_r_c = sheet1.image_at((131, 201, 50, 50))
+        self.grass_r_c = pygame.transform.scale(grass_r_c, (TILE_SIZE, TILE_SIZE))
+
+        grass_l_c = sheet1.image_at((23, 201, 50, 50))
+        self.grass_l_c = pygame.transform.scale(grass_l_c, (TILE_SIZE, TILE_SIZE))
 
         invwall = inviswall.image_at((0, 0, 50, 50))
         self.invwall = pygame.transform.scale(invwall, (TILE_SIZE, TILE_SIZE))
 
-        door = base_sheet.image_at((448, 581, 50, 54))
-        self.door = pygame.transform.scale(door, (TILE_SIZE * 2, TILE_SIZE * 2))
+        door = base_sheet.image_at((242, 260, 51, 50))
+        self.door = pygame.transform.scale(door, (TILE_SIZE, TILE_SIZE * 2))
+
+
+class EnemyShoot(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, e_center):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((width, height))
+        self.rect = self.image.get_rect()
+        self.image.fill(BULLET_COLOR)
+        self.rect.x = x
+        self.rect.y = y
+        self.rect.width = width
+        self.rect.height = height
+        self.e_center = e_center
+        pygame.draw.rect(self.image, WHITE, [self.rect.x, self.rect.y, BULLET_WIDTH, BULLET_HEIGHT])
+
+        self.x_velo = 12
+
+    def directional(self):
+        if self.rect.x > self.e_center:
+            self.rect.x += self.x_velo
+        if self.rect.x < self.e_center:
+            self.rect.x -= self.x_velo
+
+    def update(self):
+        self.directional()
+
+
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.images()
+        self.image = self.e_idle_r
+        self.rect = self.image.get_rect()
+        self.image_delay = 100
+        self.rect.x = x
+        self.rect.y = y
+        self.left = False
+        self.right = False
+        self.last = pygame.time.get_ticks()
+        self.current_frame = 0
+        self.firing_timer = 0
+        self.enemy_walk = 0
+        self.enemy_bullet_group = pygame.sprite.Group()
+
+    def enemy_firing(self):
+        self.firing_timer += 1
+
+        if self.firing_timer == 90:
+            if self.left:
+                bullet = EnemyShoot(self.rect.centerx - 16,
+                               self.rect.top + 17, BULLET_WIDTH, BULLET_HEIGHT, self.rect.centerx)
+                self.enemy_bullet_group.add(bullet)
+            if self.right:
+                bullet = EnemyShoot(self.rect.centerx + 12,
+                                    self.rect.top + 17, BULLET_WIDTH, BULLET_HEIGHT, self.rect.centerx)
+                self.enemy_bullet_group.add(bullet)
+        if self.firing_timer == 130:
+            self.enemy_bullet_group.empty()
+            self.firing_timer = 0
+
+    def enemy_movement(self):
+        self.current_frame += 1
+
+        if self.current_frame >= 1:
+            self.right = True
+            self.left = False
+
+        if self.current_frame >= 120:
+            self.left = True
+            self.right = False
+
+        if self.current_frame >= 240:
+            self.current_frame = 0
+
+        if self.right:
+            self.rect.x += 1
+            now = pygame.time.get_ticks()
+            if now - self.last >= self.image_delay:
+                self.last = now
+                self.enemy_walk = (self.enemy_walk + 1) % len(self.run_rt)
+                self.image = self.run_rt[self.enemy_walk]
+
+        elif self.left:
+            self.rect.x += -1
+            now = pygame.time.get_ticks()
+            if now - self.last >= self.image_delay:
+                self.last = now
+                self.enemy_walk = (self.enemy_walk + 1) % len(self.run_lft)
+                self.image = self.run_lft[self.enemy_walk]
+
+    def update(self, display):
+        display.blit(self.image, self.rect)
+        self.enemy_movement()
+        self.enemy_firing()
+        self.enemy_bullet_group.update()
+        self.enemy_bullet_group.draw(display)
+
+    def images(self):
+        tile_sheet = SpriteSheet("Assets/OpenGunnerEnemySoldier.png")
+
+        self.e_idle_r = tile_sheet.image_at((24, 129, 50, 50), -1)
+        self.e_idle_l = tile_sheet.image_at((24, 186, 50, 50), -1)
+
+        self.dmgr = tile_sheet.image_at((202, 129, 50, 50), -1)
+        self.dmgl = tile_sheet.image_at((202, 186, 50, 50), -1)
+
+        self.run_rt = []
+        self.run_lft = []
+
+        rr1 = tile_sheet.image_at((24, 286, 50, 50), -1)
+        self.run_rt.append(rr1)
+        rr2 = tile_sheet.image_at((75, 286, 50, 50), -1)
+        self.run_rt.append(rr2)
+        rr3 = tile_sheet.image_at((126, 286, 50, 50), -1)
+        self.run_rt.append(rr3)
+        rr4 = tile_sheet.image_at((177, 286, 50, 50), -1)
+        self.run_rt.append(rr4)
+        rr5 = tile_sheet.image_at((228, 286, 50, 50), -1)
+        self.run_rt.append(rr5)
+        rr6 = tile_sheet.image_at((279, 286, 50, 50), -1)
+        self.run_rt.append(rr6)
+        rr7 = tile_sheet.image_at((330, 286, 50, 50), -1)
+        self.run_rt.append(rr7)
+        rr8 = tile_sheet.image_at((381, 286, 50, 50), -1)
+        self.run_rt.append(rr8)
+
+        rl1 = tile_sheet.image_at((24, 346, 50, 50), -1)
+        self.run_lft.append(rl1)
+        rl2 = tile_sheet.image_at((75, 346, 50, 50), -1)
+        self.run_lft.append(rl2)
+        rl3 = tile_sheet.image_at((126, 346, 50, 50), -1)
+        self.run_lft.append(rl3)
+        rl4 = tile_sheet.image_at((177, 346, 50, 50), -1)
+        self.run_lft.append(rl4)
+        rl5 = tile_sheet.image_at((228, 346, 50, 50), -1)
+        self.run_lft.append(rl5)
+        rl6 = tile_sheet.image_at((279, 346, 50, 50), -1)
+        self.run_lft.append(rl6)
+        rl7 = tile_sheet.image_at((330, 346, 50, 50), -1)
+        self.run_lft.append(rl7)
+        rl8 = tile_sheet.image_at((381, 346, 50, 50), -1)
+        self.run_lft.append(rl8)
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, tile_size, tile_set):
+    def __init__(self, x, y, tile_size, tile_set, enemies):
         pygame.sprite.Sprite.__init__(self)
         self.tile_size = tile_size
         self.tile_set = tile_set
+        self.enemies = enemies
         self.images()
         self.image = self.stand_r
         self.rect = self.image.get_rect()
@@ -177,6 +369,8 @@ class Player(pygame.sprite.Sprite):
 
         for tile in self.tile_set:
             tile[1].x += self.camera_shift
+        for enemy in self.enemies:
+            enemy.rect.x += self.camera_shift
 
     def movement(self):
         self.dx = 0
