@@ -499,7 +499,7 @@ class Player(pygame.sprite.Sprite):
             self.left = False
             self.right = True
             for door in self.door:
-                if door.rect.right + 20 > 800:
+                if door.rect.right + 22 > 800:
                     self.camera()
             self.dx = 4
             now = pygame.time.get_ticks()
