@@ -78,7 +78,9 @@ class Layout():
         self.layout = layout
         self.tile_list = []
         self.enemies = pygame.sprite.Group()
+        self.door_group = pygame.sprite.Group()
         self.bullet_group = pygame.sprite.Group()
+        self.stoppers = pygame.sprite.Group()
 
     def create(self, level):
         self.tile_list = []
@@ -137,22 +139,66 @@ class Layout():
                     tile = (self.invwall, image_rect)
                     self.tile_list.append(tile)
 
-                if col == "D":
-                    image_rect = self.door.get_rect()
+                if col == "U":
+                    image_rect = self.blue_up.get_rect()
                     image_rect.x = x_val
                     image_rect.y = y_val
-                    tile = (self.door, image_rect, 1)
+                    tile = (self.blue_up, image_rect)
                     self.tile_list.append(tile)
+
+                if col == "J":
+                    image_rect = self.base_tile.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.base_tile, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "I":
+                    image_rect = self.blue_up_r.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.blue_up_r, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "K":
+                    image_rect = self.blue_r.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.blue_r, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "H":
+                    image_rect = self.blue_l.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.blue_l, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "Y":
+                    image_rect = self.blue_up_l.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.blue_up_l, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "D":
+                    self.door = Door(x_val, y_val)
+                    self.door_group.add(self.door)
 
                 if col == "E":
                     self.enemy = Enemy(x_val, y_val)
                     self.enemies.add(self.enemy)
+
 
     def update(self, display):
         for tile in self.tile_list:
             display.blit(tile[0], tile[1])
         for enemy in self.enemies:
             enemy.update(display)
+        for door in self.door_group:
+            door.update(display)
+
+
 
     def get_layout(self):
         return self.tile_list
@@ -161,6 +207,24 @@ class Layout():
         inviswall = SpriteSheet("Assets/invisible wall colors.png")
         base_sheet = SpriteSheet("Assets/OpenGunnerStarterTiles.png")
         sheet1 = SpriteSheet("Assets/OpenGunnerForestTiles.png")
+
+        base_tile = base_sheet.image_at((75, 260, 50, 50))
+        self.base_tile = pygame.transform.scale(base_tile, (TILE_SIZE, TILE_SIZE))
+
+        blue_up = base_sheet.image_at((75, 206, 50, 50))
+        self.blue_up = pygame.transform.scale(blue_up, (TILE_SIZE, TILE_SIZE))
+
+        blue_up_r = base_sheet.image_at((129, 206, 50, 50))
+        self.blue_up_r = pygame.transform.scale(blue_up_r, (TILE_SIZE, TILE_SIZE))
+
+        blue_up_l = base_sheet.image_at((21, 206, 50, 50))
+        self.blue_up_l = pygame.transform.scale(blue_up_l, (TILE_SIZE, TILE_SIZE))
+
+        blue_r = base_sheet.image_at((129, 260, 50, 50))
+        self.blue_r = pygame.transform.scale(blue_r, (TILE_SIZE, TILE_SIZE))
+
+        blue_l = base_sheet.image_at((21, 260, 50, 50))
+        self.blue_l = pygame.transform.scale(blue_l, (TILE_SIZE, TILE_SIZE))
 
         dirt = sheet1.image_at((77, 255, 50, 50))
         self.dirt = pygame.transform.scale(dirt, (TILE_SIZE, TILE_SIZE))
@@ -183,8 +247,58 @@ class Layout():
         invwall = inviswall.image_at((0, 0, 50, 50))
         self.invwall = pygame.transform.scale(invwall, (TILE_SIZE, TILE_SIZE))
 
-        door = base_sheet.image_at((242, 260, 51, 50))
-        self.door = pygame.transform.scale(door, (TILE_SIZE, TILE_SIZE * 2))
+
+class Door(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.images()
+
+        current_frame = 0
+        card = False
+
+        self.image = self.closed_door
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def update(self, display):
+        display.blit(self.image, self.rect)
+
+    def images(self):
+        base_sheet = SpriteSheet("Assets/OpenGunnerStarterTiles.png")
+
+        closed_door = base_sheet.image_at((24, 642, 50, 54))
+        self.closed_door = pygame.transform.scale(closed_door, (TILE_SIZE * 2, TILE_SIZE * 2))
+
+        self.open_list = []
+
+        open1 = base_sheet.image_at((77, 642, 50, 54))
+        open1 = pygame.transform.scale(open1, (TILE_SIZE * 2, TILE_SIZE * 2))
+        self.open_list.append(open1)
+        open2 = base_sheet.image_at((130, 642, 50, 54))
+        open2 = pygame.transform.scale(open2, (TILE_SIZE * 2, TILE_SIZE * 2))
+        self.open_list.append(open2)
+        open3 = base_sheet.image_at((183, 642, 50, 54))
+        open3 = pygame.transform.scale(open3, (TILE_SIZE * 2, TILE_SIZE * 2))
+        self.open_list.append(open3)
+        open4 = base_sheet.image_at((236, 642, 50, 54))
+        open4 = pygame.transform.scale(open4, (TILE_SIZE * 2, TILE_SIZE * 2))
+        self.open_list.append(open4)
+        open5 = base_sheet.image_at((289, 642, 50, 54))
+        open5 = pygame.transform.scale(open5, (TILE_SIZE * 2, TILE_SIZE * 2))
+        self.open_list.append(open5)
+        open6 = base_sheet.image_at((342, 642, 50, 54))
+        open6 = pygame.transform.scale(open6, (TILE_SIZE * 2, TILE_SIZE * 2))
+        self.open_list.append(open6)
+        open7 = base_sheet.image_at((395, 642, 50, 54))
+        open7 = pygame.transform.scale(open7, (TILE_SIZE * 2, TILE_SIZE * 2))
+        self.open_list.append(open7)
+        open8 = base_sheet.image_at((448, 642, 50, 54))
+        open8 = pygame.transform.scale(open8, (TILE_SIZE * 2, TILE_SIZE * 2))
+        self.open_list.append(open8)
+        open9 = base_sheet.image_at((501, 642, 50, 54))
+        open9 = pygame.transform.scale(open9, (TILE_SIZE * 2, TILE_SIZE * 2))
+        self.open_list.append(open9)
 
 
 class EnemyShoot(pygame.sprite.Sprite):
@@ -331,11 +445,12 @@ class Enemy(pygame.sprite.Sprite):
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, tile_size, tile_set, enemies):
+    def __init__(self, x, y, tile_size, tile_set, enemies, door):
         pygame.sprite.Sprite.__init__(self)
         self.tile_size = tile_size
         self.tile_set = tile_set
         self.enemies = enemies
+        self.door = door
         self.images()
         self.image = self.stand_r
         self.rect = self.image.get_rect()
@@ -371,6 +486,8 @@ class Player(pygame.sprite.Sprite):
             tile[1].x += self.camera_shift
         for enemy in self.enemies:
             enemy.rect.x += self.camera_shift
+        for door in self.door:
+            door.rect.x += self.camera_shift
 
     def movement(self):
         self.dx = 0
@@ -381,7 +498,9 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_d]:
             self.left = False
             self.right = True
-            self.camera()
+            for door in self.door:
+                if door.rect.right + 20 > 800:
+                    self.camera()
             self.dx = 4
             now = pygame.time.get_ticks()
             if now - self.last >= self.image_delay:

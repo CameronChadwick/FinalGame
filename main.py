@@ -13,7 +13,7 @@ player_group = pygame.sprite.Group()
 player_bullet_group = pygame.sprite.Group()
 
 
-player = sprites.Player(225, 500, 25, layout_list, game_layout.enemies)
+player = sprites.Player(225, 500, 25, layout_list, game_layout.enemies, game_layout.door_group)
 player_group.add(player)
 
 
@@ -46,13 +46,14 @@ def reset_level(new_level):
     # empty groups
     player_group.empty()
     game_layout.enemies.empty()
+    game_layout.door_group.empty()
     player_bullet_group.empty()
 
     # create level
     game_layout.create(new_level)
     layout_list = game_layout.get_layout()
     player_group = pygame.sprite.Group()
-    player = sprites.Player(800, 500, 25, layout_list, game_layout.enemies)
+    player = sprites.Player(225, 500, 25, layout_list, game_layout.enemies, game_layout.door_group)
     player_group.add(player)
 
     return layout_list
@@ -99,19 +100,18 @@ def game_play():
             if enemy_health <= 0:
                 game_layout.enemy.kill()
 
+        door_collision = pygame.sprite.groupcollide(game_layout.door_group, player_group, False, False)
 
-            # door collision
-        for tile in layout_lis:
-            if tile[1].colliderect(player.rect.x + 3, player.rect.y,
-                                   player.rect.width, player.rect.height) and len(tile) == 3:
-                level += 1
+        if door_collision:
+            level += 1
 
-                if level <= max_level:
+            if level <= max_level:
 
-                    layout_lis = reset_level(level)
+                layout_lis = reset_level(level)
 
-                else:
-                    running = False
+            else:
+                running = False
+
 
         screen.fill(DARK_BLUE)
 
