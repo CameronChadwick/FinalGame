@@ -80,7 +80,7 @@ class Layout():
         self.enemies = pygame.sprite.Group()
         self.door_group = pygame.sprite.Group()
         self.bullet_group = pygame.sprite.Group()
-        self.stoppers = pygame.sprite.Group()
+        self.stopper = pygame.sprite.Group()
 
     def create(self, level):
         self.tile_list = []
@@ -185,10 +185,13 @@ class Layout():
                     self.door = Door(x_val, y_val)
                     self.door_group.add(self.door)
 
-                if col == "E":
-                    self.enemy = Enemy(x_val, y_val)
-                    self.enemies.add(self.enemy)
+                if col == "9":
+                    self.stop = LeftStop(x_val, y_val)
+                    self.stopper.add(self.stop)
 
+                if col == "E":
+                    self.enemy = EnemySold(x_val, y_val)
+                    self.enemies.add(self.enemy)
 
     def update(self, display):
         for tile in self.tile_list:
@@ -197,8 +200,8 @@ class Layout():
             enemy.update(display)
         for door in self.door_group:
             door.update(display)
-
-
+        for stop in self.stopper:
+            stop.update(display)
 
     def get_layout(self):
         return self.tile_list
@@ -301,6 +304,22 @@ class Door(pygame.sprite.Sprite):
         self.open_list.append(open9)
 
 
+class LeftStop(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        inviswall = SpriteSheet("Assets/invisible wall colors.png")
+        stopper = inviswall.image_at((0, 0, 50, 50))
+        self.stopper = pygame.transform.scale(stopper, (TILE_SIZE, TILE_SIZE))
+
+        self.image = self.stopper
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def update(self, display):
+        display.blit(self.image, self.rect)
+
+
 class EnemyShoot(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, e_center):
         pygame.sprite.Sprite.__init__(self)
@@ -326,7 +345,7 @@ class EnemyShoot(pygame.sprite.Sprite):
         self.directional()
 
 
-class Enemy(pygame.sprite.Sprite):
+class EnemySold(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
 
@@ -444,13 +463,34 @@ class Enemy(pygame.sprite.Sprite):
         self.run_lft.append(rl8)
 
 
+class Heart(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        sheet = SpriteSheet("Assets/OpenGunnerBarsAndPanels.png")
+
+        heart = sheet.image_at((349, 391, 9, 9), -1)
+        self.heart = pygame.transform.scale(heart, (TILE_SIZE * 1.25, TILE_SIZE * 1.25))
+
+        empty_heart = sheet.image_at((360, 391, 9, 9), -1)
+        self.empty_heart = pygame.transform.scale(empty_heart, (TILE_SIZE * 1.25, TILE_SIZE * 1.25))
+
+        self.image = self.heart
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def update(self, display):
+        display.blit(self.image, self.rect)
+
+
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, tile_size, tile_set, enemies, door):
+    def __init__(self, x, y, tile_size, tile_set, enemies, door, stop):
         pygame.sprite.Sprite.__init__(self)
         self.tile_size = tile_size
         self.tile_set = tile_set
         self.enemies = enemies
         self.door = door
+        self.stop = stop
         self.images()
         self.image = self.stand_r
         self.rect = self.image.get_rect()
@@ -488,6 +528,8 @@ class Player(pygame.sprite.Sprite):
             enemy.rect.x += self.camera_shift
         for door in self.door:
             door.rect.x += self.camera_shift
+        for stop in self.stop:
+            stop.rect.x += self.camera_shift
 
     def movement(self):
         self.dx = 0
@@ -498,9 +540,11 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_d]:
             self.left = False
             self.right = True
+            # right camera stopper
             for door in self.door:
                 if door.rect.right + 22 > 800:
                     self.camera()
+
             self.dx = 4
             now = pygame.time.get_ticks()
             if now - self.last >= self.image_delay:
@@ -511,7 +555,11 @@ class Player(pygame.sprite.Sprite):
         elif keys[pygame.K_a]:
             self.left = True
             self.right = False
-            self.camera()
+            # left camera stopper
+            for stop in self.stop:
+                if stop.rect.x - 25 < 0:
+                    self.camera()
+
             self.dx = -4
             now = pygame.time.get_ticks()
             if now - self.last >= self.image_delay:

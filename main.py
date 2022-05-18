@@ -10,11 +10,22 @@ game_layout = sprites.Layout(LAYOUT)
 layout_list = game_layout.get_layout()
 
 player_group = pygame.sprite.Group()
+heart_group = pygame.sprite.Group()
 player_bullet_group = pygame.sprite.Group()
 
 
-player = sprites.Player(225, 500, 25, layout_list, game_layout.enemies, game_layout.door_group)
+player = sprites.Player(225, 500, 25, layout_list, game_layout.enemies, game_layout.door_group,
+                        game_layout.stopper)
 player_group.add(player)
+
+heart1 = sprites.Heart(25, 25)
+heart_group.add(heart1)
+
+heart2 = sprites.Heart(70, 25)
+heart_group.add(heart2)
+
+heart3 = sprites.Heart(115, 25)
+heart_group.add(heart3)
 
 
 class Shoot(pygame.sprite.Sprite):
@@ -47,13 +58,15 @@ def reset_level(new_level):
     player_group.empty()
     game_layout.enemies.empty()
     game_layout.door_group.empty()
+    game_layout.stopper.empty()
     player_bullet_group.empty()
 
     # create level
     game_layout.create(new_level)
     layout_list = game_layout.get_layout()
     player_group = pygame.sprite.Group()
-    player = sprites.Player(225, 500, 25, layout_list, game_layout.enemies, game_layout.door_group)
+    player = sprites.Player(225, 500, 25, layout_list, game_layout.enemies, game_layout.door_group,
+                            game_layout.stopper)
     player_group.add(player)
 
     return layout_list
@@ -64,6 +77,7 @@ def game_play():
     level = 1
     max_level = 2
     enemy_health = 3
+    player_health = 3
 
     layout_lis = reset_level(level)
 
@@ -97,9 +111,30 @@ def game_play():
         if enemy_shot:
             enemy_health -= 1
 
-            if enemy_health <= 0:
-                game_layout.enemy.kill()
+        if enemy_health <= 0:
+            game_layout.enemy.kill()
 
+            # player damage
+        player_shot = pygame.sprite.groupcollide(game_layout.enemy.enemy_bullet_group, player_group, True, False)
+
+        if player_shot:
+            player_health -= 1
+
+        player_enemy_collide = pygame.sprite.groupcollide(game_layout.enemies, player_group, False, False)
+
+        if player_enemy_collide:
+            player_health -= 1
+
+        if player_health < 3:
+            heart3.image = heart3.empty_heart
+
+        if player_health < 2:
+            heart2.image = heart2.empty_heart
+
+        if player_health == 0:
+            running = False
+
+            # door collision
         door_collision = pygame.sprite.groupcollide(game_layout.door_group, player_group, False, False)
 
         if door_collision:
@@ -112,11 +147,11 @@ def game_play():
             else:
                 running = False
 
-
         screen.fill(DARK_BLUE)
 
         player_group.update(screen)
         game_layout.update(screen)
+        heart_group.update(screen)
         player_bullet_group.update()
         player_bullet_group.draw(screen)
 
