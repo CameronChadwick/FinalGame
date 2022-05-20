@@ -81,6 +81,7 @@ class Layout():
         self.door_group = pygame.sprite.Group()
         self.bullet_group = pygame.sprite.Group()
         self.stopper = pygame.sprite.Group()
+        self.trunk_group = pygame.sprite.Group()
 
     def create(self, level):
         self.tile_list = []
@@ -181,6 +182,31 @@ class Layout():
                     tile = (self.blue_up_l, image_rect)
                     self.tile_list.append(tile)
 
+                if col == "B":
+                    image_rect = self.tree_branch.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.tree_branch, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "N":
+                    image_rect = self.branch_r.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.branch_r, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "V":
+                    image_rect = self.branch_l.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.branch_l, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "T":
+                    self.trunk = TreeTrunk(x_val, y_val)
+                    self.trunk_group.add(self.trunk)
+
                 if col == "D":
                     self.door = Door(x_val, y_val)
                     self.door_group.add(self.door)
@@ -202,6 +228,8 @@ class Layout():
             door.update(display)
         for stop in self.stopper:
             stop.update(display)
+        for trunk in self.trunk_group:
+            trunk.update(display)
 
     def get_layout(self):
         return self.tile_list
@@ -210,6 +238,8 @@ class Layout():
         inviswall = SpriteSheet("Assets/invisible wall colors.png")
         base_sheet = SpriteSheet("Assets/OpenGunnerStarterTiles.png")
         sheet1 = SpriteSheet("Assets/OpenGunnerForestTiles.png")
+
+        # inside
 
         base_tile = base_sheet.image_at((75, 260, 50, 50))
         self.base_tile = pygame.transform.scale(base_tile, (TILE_SIZE, TILE_SIZE))
@@ -229,6 +259,8 @@ class Layout():
         blue_l = base_sheet.image_at((21, 260, 50, 50))
         self.blue_l = pygame.transform.scale(blue_l, (TILE_SIZE, TILE_SIZE))
 
+        # outside
+
         dirt = sheet1.image_at((77, 255, 50, 50))
         self.dirt = pygame.transform.scale(dirt, (TILE_SIZE, TILE_SIZE))
 
@@ -246,6 +278,14 @@ class Layout():
 
         grass_l_c = sheet1.image_at((23, 201, 50, 50))
         self.grass_l_c = pygame.transform.scale(grass_l_c, (TILE_SIZE, TILE_SIZE))
+
+        tree_branch = sheet1.image_at((1035, 297, 50, 24))
+        self.tree_branch = pygame.transform.scale(tree_branch, (TILE_SIZE * 2, TILE_SIZE))
+
+        branch_l = sheet1.image_at((1157, 297, 40, 24), -1)
+        self.branch_l = pygame.transform.scale(branch_l, (TILE_SIZE, TILE_SIZE))
+
+        self.branch_r = pygame.transform.flip(self.branch_l, True, False)
 
         invwall = inviswall.image_at((0, 0, 50, 50))
         self.invwall = pygame.transform.scale(invwall, (TILE_SIZE, TILE_SIZE))
@@ -273,36 +313,6 @@ class Door(pygame.sprite.Sprite):
         closed_door = base_sheet.image_at((24, 642, 50, 54))
         self.closed_door = pygame.transform.scale(closed_door, (TILE_SIZE * 2, TILE_SIZE * 2))
 
-        self.open_list = []
-
-        open1 = base_sheet.image_at((77, 642, 50, 54))
-        open1 = pygame.transform.scale(open1, (TILE_SIZE * 2, TILE_SIZE * 2))
-        self.open_list.append(open1)
-        open2 = base_sheet.image_at((130, 642, 50, 54))
-        open2 = pygame.transform.scale(open2, (TILE_SIZE * 2, TILE_SIZE * 2))
-        self.open_list.append(open2)
-        open3 = base_sheet.image_at((183, 642, 50, 54))
-        open3 = pygame.transform.scale(open3, (TILE_SIZE * 2, TILE_SIZE * 2))
-        self.open_list.append(open3)
-        open4 = base_sheet.image_at((236, 642, 50, 54))
-        open4 = pygame.transform.scale(open4, (TILE_SIZE * 2, TILE_SIZE * 2))
-        self.open_list.append(open4)
-        open5 = base_sheet.image_at((289, 642, 50, 54))
-        open5 = pygame.transform.scale(open5, (TILE_SIZE * 2, TILE_SIZE * 2))
-        self.open_list.append(open5)
-        open6 = base_sheet.image_at((342, 642, 50, 54))
-        open6 = pygame.transform.scale(open6, (TILE_SIZE * 2, TILE_SIZE * 2))
-        self.open_list.append(open6)
-        open7 = base_sheet.image_at((395, 642, 50, 54))
-        open7 = pygame.transform.scale(open7, (TILE_SIZE * 2, TILE_SIZE * 2))
-        self.open_list.append(open7)
-        open8 = base_sheet.image_at((448, 642, 50, 54))
-        open8 = pygame.transform.scale(open8, (TILE_SIZE * 2, TILE_SIZE * 2))
-        self.open_list.append(open8)
-        open9 = base_sheet.image_at((501, 642, 50, 54))
-        open9 = pygame.transform.scale(open9, (TILE_SIZE * 2, TILE_SIZE * 2))
-        self.open_list.append(open9)
-
 
 class LeftStop(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -312,6 +322,21 @@ class LeftStop(pygame.sprite.Sprite):
         self.stopper = pygame.transform.scale(stopper, (TILE_SIZE, TILE_SIZE))
 
         self.image = self.stopper
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def update(self, display):
+        display.blit(self.image, self.rect)
+
+
+class TreeTrunk(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        sheet1 = SpriteSheet("Assets/OpenGunnerForestTiles.png")
+        tree_trunk = sheet1.image_at((646, 228, 44, 50))
+        self.tree_trunk = pygame.transform.scale(tree_trunk, (TILE_SIZE * 2, TILE_SIZE * 2))
+        self.image = self.tree_trunk
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -484,13 +509,14 @@ class Heart(pygame.sprite.Sprite):
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, tile_size, tile_set, enemies, door, stop):
+    def __init__(self, x, y, tile_size, tile_set, enemies, door, stop, trees):
         pygame.sprite.Sprite.__init__(self)
         self.tile_size = tile_size
         self.tile_set = tile_set
         self.enemies = enemies
         self.door = door
         self.stop = stop
+        self.trees = trees
         self.images()
         self.image = self.stand_r
         self.rect = self.image.get_rect()
@@ -530,6 +556,8 @@ class Player(pygame.sprite.Sprite):
             door.rect.x += self.camera_shift
         for stop in self.stop:
             stop.rect.x += self.camera_shift
+        for trunk in self.trees:
+            trunk.rect.x += self.camera_shift
 
     def movement(self):
         self.dx = 0

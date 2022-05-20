@@ -15,7 +15,7 @@ player_bullet_group = pygame.sprite.Group()
 
 
 player = sprites.Player(225, 500, 25, layout_list, game_layout.enemies, game_layout.door_group,
-                        game_layout.stopper)
+                        game_layout.stopper, game_layout.trunk_group)
 player_group.add(player)
 
 heart1 = sprites.Heart(25, 25)
@@ -59,6 +59,7 @@ def reset_level(new_level):
     game_layout.enemies.empty()
     game_layout.door_group.empty()
     game_layout.stopper.empty()
+    game_layout.trunk_group.empty()
     player_bullet_group.empty()
 
     # create level
@@ -66,7 +67,7 @@ def reset_level(new_level):
     layout_list = game_layout.get_layout()
     player_group = pygame.sprite.Group()
     player = sprites.Player(225, 500, 25, layout_list, game_layout.enemies, game_layout.door_group,
-                            game_layout.stopper)
+                            game_layout.stopper, game_layout.trunk_group)
     player_group.add(player)
 
     return layout_list
@@ -106,6 +107,10 @@ def game_play():
                 running = False
 
             # enemy damage
+        invincible_timer = 0
+        invincible_timer += 1
+        invincible = True
+
         enemy_shot = pygame.sprite.groupcollide(game_layout.enemies, player_bullet_group, False, True)
 
         if enemy_shot:
@@ -118,11 +123,6 @@ def game_play():
         player_shot = pygame.sprite.groupcollide(game_layout.enemy.enemy_bullet_group, player_group, True, False)
 
         if player_shot:
-            player_health -= 1
-
-        player_enemy_collide = pygame.sprite.groupcollide(game_layout.enemies, player_group, False, False)
-
-        if player_enemy_collide:
             player_health -= 1
 
         if player_health < 3:
@@ -149,8 +149,8 @@ def game_play():
 
         screen.fill(DARK_BLUE)
 
-        player_group.update(screen)
         game_layout.update(screen)
+        player_group.update(screen)
         heart_group.update(screen)
         player_bullet_group.update()
         player_bullet_group.draw(screen)
