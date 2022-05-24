@@ -140,48 +140,6 @@ class Layout():
                     tile = (self.invwall, image_rect)
                     self.tile_list.append(tile)
 
-                if col == "U":
-                    image_rect = self.blue_up.get_rect()
-                    image_rect.x = x_val
-                    image_rect.y = y_val
-                    tile = (self.blue_up, image_rect)
-                    self.tile_list.append(tile)
-
-                if col == "J":
-                    image_rect = self.base_tile.get_rect()
-                    image_rect.x = x_val
-                    image_rect.y = y_val
-                    tile = (self.base_tile, image_rect)
-                    self.tile_list.append(tile)
-
-                if col == "I":
-                    image_rect = self.blue_up_r.get_rect()
-                    image_rect.x = x_val
-                    image_rect.y = y_val
-                    tile = (self.blue_up_r, image_rect)
-                    self.tile_list.append(tile)
-
-                if col == "K":
-                    image_rect = self.blue_r.get_rect()
-                    image_rect.x = x_val
-                    image_rect.y = y_val
-                    tile = (self.blue_r, image_rect)
-                    self.tile_list.append(tile)
-
-                if col == "H":
-                    image_rect = self.blue_l.get_rect()
-                    image_rect.x = x_val
-                    image_rect.y = y_val
-                    tile = (self.blue_l, image_rect)
-                    self.tile_list.append(tile)
-
-                if col == "Y":
-                    image_rect = self.blue_up_l.get_rect()
-                    image_rect.x = x_val
-                    image_rect.y = y_val
-                    tile = (self.blue_up_l, image_rect)
-                    self.tile_list.append(tile)
-
                 if col == "B":
                     image_rect = self.tree_branch.get_rect()
                     image_rect.x = x_val
@@ -201,6 +159,69 @@ class Layout():
                     image_rect.x = x_val
                     image_rect.y = y_val
                     tile = (self.branch_l, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "5":
+                    image_rect = self.leaf_center.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.leaf_center, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "6":
+                    image_rect = self.leaf_d_l.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.leaf_d_l, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "7":
+                    image_rect = self.leaf_d_r.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.leaf_d_r, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "8":
+                    image_rect = self.leaf_u_l.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.leaf_u_l, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "Z":
+                    image_rect = self.leaf_u_r.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.leaf_u_r, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "H":
+                    image_rect = self.leaf_d.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.leaf_d, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "Y":
+                    image_rect = self.leaf_r.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.leaf_r, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "X":
+                    image_rect = self.leaf_u.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.leaf_u, image_rect)
+                    self.tile_list.append(tile)
+
+                if col == "C":
+                    image_rect = self.leaf_l.get_rect()
+                    image_rect.x = x_val
+                    image_rect.y = y_val
+                    tile = (self.leaf_l, image_rect)
                     self.tile_list.append(tile)
 
                 if col == "T":
@@ -239,26 +260,6 @@ class Layout():
         base_sheet = SpriteSheet("Assets/OpenGunnerStarterTiles.png")
         sheet1 = SpriteSheet("Assets/OpenGunnerForestTiles.png")
 
-        # inside
-
-        base_tile = base_sheet.image_at((75, 260, 50, 50))
-        self.base_tile = pygame.transform.scale(base_tile, (TILE_SIZE, TILE_SIZE))
-
-        blue_up = base_sheet.image_at((75, 206, 50, 50))
-        self.blue_up = pygame.transform.scale(blue_up, (TILE_SIZE, TILE_SIZE))
-
-        blue_up_r = base_sheet.image_at((129, 206, 50, 50))
-        self.blue_up_r = pygame.transform.scale(blue_up_r, (TILE_SIZE, TILE_SIZE))
-
-        blue_up_l = base_sheet.image_at((21, 206, 50, 50))
-        self.blue_up_l = pygame.transform.scale(blue_up_l, (TILE_SIZE, TILE_SIZE))
-
-        blue_r = base_sheet.image_at((129, 260, 50, 50))
-        self.blue_r = pygame.transform.scale(blue_r, (TILE_SIZE, TILE_SIZE))
-
-        blue_l = base_sheet.image_at((21, 260, 50, 50))
-        self.blue_l = pygame.transform.scale(blue_l, (TILE_SIZE, TILE_SIZE))
-
         # outside
 
         dirt = sheet1.image_at((77, 255, 50, 50))
@@ -279,6 +280,8 @@ class Layout():
         grass_l_c = sheet1.image_at((23, 201, 50, 50))
         self.grass_l_c = pygame.transform.scale(grass_l_c, (TILE_SIZE, TILE_SIZE))
 
+        # trees
+
         tree_branch = sheet1.image_at((1035, 297, 50, 24))
         self.tree_branch = pygame.transform.scale(tree_branch, (TILE_SIZE * 2, TILE_SIZE))
 
@@ -286,6 +289,29 @@ class Layout():
         self.branch_l = pygame.transform.scale(branch_l, (TILE_SIZE, TILE_SIZE))
 
         self.branch_r = pygame.transform.flip(self.branch_l, True, False)
+
+        leaf_center = sheet1.image_at((643, 284, 50, 50))
+        self.leaf_center = pygame.transform.scale(leaf_center, (TILE_SIZE * 2, TILE_SIZE * 2))
+
+        leaf_d_l = sheet1.image_at((699, 284, 50, 50), -1)
+        self.leaf_d_l = pygame.transform.scale(leaf_d_l, (TILE_SIZE * 2, TILE_SIZE * 2))
+
+        self.leaf_d_r = pygame.transform.rotate(self.leaf_d_l, 90)
+
+        self.leaf_u_r = pygame.transform.rotate(self.leaf_d_r, 90)
+
+        self.leaf_u_l = pygame.transform.rotate(self.leaf_u_r, 90)
+
+        leaf_d = sheet1.image_at((811, 284, 50, 25), -1)
+        self.leaf_d = pygame.transform.scale(leaf_d, (TILE_SIZE * 2, TILE_SIZE))
+
+        self.leaf_r = pygame.transform.rotate(self.leaf_d, 90)
+
+        self.leaf_u = pygame.transform.rotate(self.leaf_r, 90)
+
+        self.leaf_l = pygame.transform.rotate(self.leaf_u, 90)
+
+        # invisible wall
 
         invwall = inviswall.image_at((0, 0, 50, 50))
         self.invwall = pygame.transform.scale(invwall, (TILE_SIZE, TILE_SIZE))
@@ -391,7 +417,7 @@ class EnemySold(pygame.sprite.Sprite):
     def enemy_firing(self):
         self.firing_timer += 1
 
-        if self.firing_timer == 90:
+        if self.firing_timer == 130:
             if self.left:
                 bullet = EnemyShoot(self.rect.centerx - 16,
                                self.rect.top + 17, BULLET_WIDTH, BULLET_HEIGHT, self.rect.centerx)
@@ -400,8 +426,7 @@ class EnemySold(pygame.sprite.Sprite):
                 bullet = EnemyShoot(self.rect.centerx + 12,
                                     self.rect.top + 17, BULLET_WIDTH, BULLET_HEIGHT, self.rect.centerx)
                 self.enemy_bullet_group.add(bullet)
-        if self.firing_timer == 130:
-            self.enemy_bullet_group.empty()
+
             self.firing_timer = 0
 
     def enemy_movement(self):
