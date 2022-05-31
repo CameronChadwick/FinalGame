@@ -1,4 +1,5 @@
 import pygame
+import random
 from settings import *
 
 
@@ -322,10 +323,7 @@ class Door(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.images()
 
-        current_frame = 0
-        card = False
-
-        self.image = self.closed_door
+        self.image = self.door
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -336,8 +334,8 @@ class Door(pygame.sprite.Sprite):
     def images(self):
         base_sheet = SpriteSheet("Assets/OpenGunnerStarterTiles.png")
 
-        closed_door = base_sheet.image_at((24, 642, 50, 54))
-        self.closed_door = pygame.transform.scale(closed_door, (TILE_SIZE * 2, TILE_SIZE * 2))
+        door = base_sheet.image_at((24, 642, 50, 54))
+        self.door = pygame.transform.scale(door, (TILE_SIZE * 2, TILE_SIZE * 2))
 
 
 class LeftStop(pygame.sprite.Sprite):
@@ -416,8 +414,7 @@ class EnemySold(pygame.sprite.Sprite):
 
     def enemy_firing(self):
         self.firing_timer += 1
-
-        if self.firing_timer == 130:
+        if self.firing_timer == FIRERATE:
             if self.left:
                 bullet = EnemyShoot(self.rect.centerx - 16,
                                self.rect.top + 17, BULLET_WIDTH, BULLET_HEIGHT, self.rect.centerx)

@@ -107,10 +107,6 @@ def game_play():
                 running = False
 
             # enemy damage
-        invincible_timer = 0
-        invincible_timer += 1
-        invincible = True
-
         enemy_shot = pygame.sprite.groupcollide(game_layout.enemies, player_bullet_group, False, True)
 
         if enemy_shot:
