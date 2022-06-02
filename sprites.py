@@ -83,6 +83,7 @@ class Layout():
         self.bullet_group = pygame.sprite.Group()
         self.stopper = pygame.sprite.Group()
         self.trunk_group = pygame.sprite.Group()
+        self.key_group = pygame.sprite.Group()
 
     def create(self, level):
         self.tile_list = []
@@ -241,6 +242,10 @@ class Layout():
                     self.enemy = EnemySold(x_val, y_val)
                     self.enemies.add(self.enemy)
 
+                if col == "K":
+                    self.key = Key(x_val, y_val)
+                    self.key_group.add(self.key)
+
     def update(self, display):
         for tile in self.tile_list:
             display.blit(tile[0], tile[1])
@@ -252,6 +257,8 @@ class Layout():
             stop.update(display)
         for trunk in self.trunk_group:
             trunk.update(display)
+        for key in self.key_group:
+            key.update(display)
 
     def get_layout(self):
         return self.tile_list
@@ -303,14 +310,13 @@ class Layout():
 
         self.leaf_u_l = pygame.transform.rotate(self.leaf_u_r, 90)
 
-        leaf_d = sheet1.image_at((811, 284, 50, 25), -1)
-        self.leaf_d = pygame.transform.scale(leaf_d, (TILE_SIZE * 2, TILE_SIZE))
-
-        self.leaf_r = pygame.transform.rotate(self.leaf_d, 90)
-
-        self.leaf_u = pygame.transform.rotate(self.leaf_r, 90)
+        self.leaf_u = sheet1.image_at((811, 253, 50, 25), -1)
 
         self.leaf_l = pygame.transform.rotate(self.leaf_u, 90)
+
+        self.leaf_d = pygame.transform.rotate(self.leaf_l, 90)
+
+        self.leaf_r = pygame.transform.rotate(self.leaf_d, 90)
 
         # invisible wall
 
@@ -321,21 +327,37 @@ class Layout():
 class Door(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.images()
+        base_sheet = SpriteSheet("Assets/OpenGunnerStarterTiles.png")
 
-        self.image = self.door
+        door_c = base_sheet.image_at((24, 642, 50, 54))
+        self.door_closed = pygame.transform.scale(door_c, (TILE_SIZE * 2, TILE_SIZE * 2))
+
+        door_o = base_sheet.image_at((501, 642, 50, 54))
+        self.door_open = pygame.transform.scale(door_o, (TILE_SIZE * 2, TILE_SIZE * 2))
+
+        self.image = self.door_closed
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.keygrabbed = False
+
+    def update(self, display):
+        display.blit(self.image, self.rect)
+
+
+class Key(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.key_image = SpriteSheet("Assets/key.png")
+        self.key = self.key_image.image_at((0, 0, 50, 50), -1)
+
+        self.image = self.key
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
 
     def update(self, display):
         display.blit(self.image, self.rect)
-
-    def images(self):
-        base_sheet = SpriteSheet("Assets/OpenGunnerStarterTiles.png")
-
-        door = base_sheet.image_at((24, 642, 50, 54))
-        self.door = pygame.transform.scale(door, (TILE_SIZE * 2, TILE_SIZE * 2))
 
 
 class LeftStop(pygame.sprite.Sprite):
@@ -409,12 +431,14 @@ class EnemySold(pygame.sprite.Sprite):
         self.last = pygame.time.get_ticks()
         self.current_frame = 0
         self.firing_timer = 0
+        self.firing_stopper = 0
         self.enemy_walk = 0
         self.enemy_bullet_group = pygame.sprite.Group()
 
     def enemy_firing(self):
         self.firing_timer += 1
-        if self.firing_timer == FIRERATE:
+        self.firing_stopper += 1
+        if self.firing_timer == 90:
             if self.left:
                 bullet = EnemyShoot(self.rect.centerx - 16,
                                self.rect.top + 17, BULLET_WIDTH, BULLET_HEIGHT, self.rect.centerx)
@@ -425,6 +449,10 @@ class EnemySold(pygame.sprite.Sprite):
                 self.enemy_bullet_group.add(bullet)
 
             self.firing_timer = 0
+
+        if self.firing_stopper == 120:
+            self.enemy_bullet_group.empty()
+            self.firing_stopper = 0
 
     def enemy_movement(self):
         self.current_frame += 1
@@ -531,7 +559,7 @@ class Heart(pygame.sprite.Sprite):
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, tile_size, tile_set, enemies, door, stop, trees):
+    def __init__(self, x, y, tile_size, tile_set, enemies, door, stop, trees, keys):
         pygame.sprite.Sprite.__init__(self)
         self.tile_size = tile_size
         self.tile_set = tile_set
@@ -539,6 +567,7 @@ class Player(pygame.sprite.Sprite):
         self.door = door
         self.stop = stop
         self.trees = trees
+        self.keys = keys
         self.images()
         self.image = self.stand_r
         self.rect = self.image.get_rect()
@@ -580,6 +609,8 @@ class Player(pygame.sprite.Sprite):
             stop.rect.x += self.camera_shift
         for trunk in self.trees:
             trunk.rect.x += self.camera_shift
+        for key in self.keys:
+            key.rect.x += self.camera_shift
 
     def movement(self):
         self.dx = 0

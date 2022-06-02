@@ -15,7 +15,7 @@ player_bullet_group = pygame.sprite.Group()
 
 
 player = sprites.Player(225, 500, 25, layout_list, game_layout.enemies, game_layout.door_group,
-                        game_layout.stopper, game_layout.trunk_group)
+                        game_layout.stopper, game_layout.trunk_group, game_layout.key_group)
 player_group.add(player)
 
 heart1 = sprites.Heart(25, 25)
@@ -67,7 +67,7 @@ def reset_level(new_level):
     layout_list = game_layout.get_layout()
     player_group = pygame.sprite.Group()
     player = sprites.Player(225, 500, 25, layout_list, game_layout.enemies, game_layout.door_group,
-                            game_layout.stopper, game_layout.trunk_group)
+                            game_layout.stopper, game_layout.trunk_group, game_layout.key_group)
     player_group.add(player)
 
     return layout_list
@@ -79,6 +79,7 @@ def game_play():
     max_level = 2
     enemy_health = 3
     player_health = 3
+    door_open = False
 
     layout_lis = reset_level(level)
 
@@ -131,9 +132,14 @@ def game_play():
             running = False
 
             # door collision
+        key_collision = pygame.sprite.groupcollide(game_layout.key_group, player_group, True, False)
+
+        if key_collision:
+            game_layout.door.keygrabbed = True
+
         door_collision = pygame.sprite.groupcollide(game_layout.door_group, player_group, False, False)
 
-        if door_collision:
+        if door_collision and game_layout.door.keygrabbed:
             level += 1
 
             if level <= max_level:
@@ -142,6 +148,7 @@ def game_play():
 
             else:
                 running = False
+
 
         screen.fill(DARK_BLUE)
 
