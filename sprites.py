@@ -431,28 +431,23 @@ class EnemySold(pygame.sprite.Sprite):
         self.last = pygame.time.get_ticks()
         self.current_frame = 0
         self.firing_timer = 0
-        self.firing_stopper = 0
         self.enemy_walk = 0
+        self.enemy_health = 3
         self.enemy_bullet_group = pygame.sprite.Group()
 
     def enemy_firing(self):
         self.firing_timer += 1
-        self.firing_stopper += 1
         if self.firing_timer == 90:
             if self.left:
-                bullet = EnemyShoot(self.rect.centerx - 16,
+                ebullet = EnemyShoot(self.rect.centerx - 16,
                                self.rect.top + 17, BULLET_WIDTH, BULLET_HEIGHT, self.rect.centerx)
-                self.enemy_bullet_group.add(bullet)
+                self.enemy_bullet_group.add(ebullet)
             if self.right:
-                bullet = EnemyShoot(self.rect.centerx + 12,
+                ebullet = EnemyShoot(self.rect.centerx + 12,
                                     self.rect.top + 17, BULLET_WIDTH, BULLET_HEIGHT, self.rect.centerx)
-                self.enemy_bullet_group.add(bullet)
+                self.enemy_bullet_group.add(ebullet)
 
             self.firing_timer = 0
-
-        if self.firing_stopper == 120:
-            self.enemy_bullet_group.empty()
-            self.firing_stopper = 0
 
     def enemy_movement(self):
         self.current_frame += 1

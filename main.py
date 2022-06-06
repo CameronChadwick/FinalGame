@@ -77,7 +77,6 @@ def game_play():
 
     level = 1
     max_level = 2
-    enemy_health = 3
     player_health = 3
     door_open = False
 
@@ -111,9 +110,9 @@ def game_play():
         enemy_shot = pygame.sprite.groupcollide(game_layout.enemies, player_bullet_group, False, True)
 
         if enemy_shot:
-            enemy_health -= 1
+            game_layout.enemy.enemy_health -= 1
 
-        if enemy_health <= 0:
+        if game_layout.enemy.enemy_health <= 0:
             game_layout.enemy.kill()
 
             # player damage
