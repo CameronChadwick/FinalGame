@@ -27,6 +27,8 @@ heart_group.add(heart2)
 heart3 = sprites.Heart(115, 25)
 heart_group.add(heart3)
 
+SIZE = (DISPLAY_WIDTH, DISPLAY_HEIGHT)
+
 
 class Shoot(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
@@ -52,6 +54,48 @@ class Shoot(pygame.sprite.Sprite):
         self.directional_firing()
 
 
+# def start_screen():
+#     screen = pygame.display.set_mode(SIZE)
+#     pygame.display.set_caption("Space Invaders")
+#
+#     clock = pygame.time.Clock()
+#     running = True
+#     while running:
+#         for event in pygame.event.get():
+#             if event.type == pygame.QUIT:
+#                 running = quit()
+#             if event.type == pygame.KEYDOWN:
+#                 if event.key == pygame.K_SPACE:
+#                     running = False
+#
+#     screen.fill(BLACK)
+#     pygame.display.flip()
+#
+#     clock.tick(FPS)
+
+
+# def game_over():
+#     screen = pygame.display.set_mode(SIZE)
+#     pygame.display.set_caption("Space Invaders")
+#
+#     clock = pygame.time.Clock()
+#     running = True
+#     while running:
+#         for event in pygame.event.get():
+#             if event.type == pygame.QUIT:
+#                 running = quit()
+#             if event.type == pygame.KEYDOWN:
+#                 if event.key == pygame.K_SPACE:
+#                     return False
+#                 if event.key == pygame.K_RETURN:
+#                     return True
+#
+#     screen.fill(BLACK)
+#     pygame.display.flip()
+#
+#     clock.tick(FPS)
+
+
 def reset_level(new_level):
     global player, player_group, game_layout, layout_list
     # empty groups
@@ -73,7 +117,7 @@ def reset_level(new_level):
     return layout_list
 
 
-def game_play():
+def play():
 
     level = 1
     max_level = 2
@@ -135,6 +179,7 @@ def game_play():
 
         if key_collision:
             game_layout.door.keygrabbed = True
+            game_layout.door.image = game_layout.door.door_open
 
         door_collision = pygame.sprite.groupcollide(game_layout.door_group, player_group, False, False)
 
@@ -162,8 +207,11 @@ def game_play():
     pygame.quit()
 
 
+# start_screen()
 playing = True
-while playing:
-    game_play()
+while True:
+    play()
+    # game_over()
+
 
 pygame.quit()
