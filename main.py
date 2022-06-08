@@ -121,7 +121,6 @@ def play():
 
     level = 1
     max_level = 2
-    player_health = 3
     door_open = False
 
     layout_lis = reset_level(level)
@@ -163,15 +162,23 @@ def play():
         player_shot = pygame.sprite.groupcollide(game_layout.enemy.enemy_bullet_group, player_group, True, False)
 
         if player_shot:
-            player_health -= 1
+            player.player_health -= 1
 
-        if player_health < 3:
+        if player.player_health == 3:
+            heart1.image = heart1.heart
+            heart2.image = heart2.heart
+            heart3.image = heart3.heart
+
+        if player.player_health < 3:
             heart3.image = heart3.empty_heart
 
-        if player_health < 2:
+        if player.player_health < 2:
             heart2.image = heart2.empty_heart
 
-        if player_health == 0:
+        if player.player_health == 0:
+            running = False
+
+        if player.rect.y > 900:
             running = False
 
             # door collision
@@ -212,6 +219,3 @@ playing = True
 while True:
     play()
     # game_over()
-
-
-pygame.quit()

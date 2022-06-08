@@ -578,6 +578,7 @@ class Player(pygame.sprite.Sprite):
         self.velo_y = 0
         self.camera_shift = 0
         self.jumpspeed = 0
+        self.player_health = 3
         self.dx = 0
 
     def camera(self):
